@@ -1,0 +1,92 @@
+name: StayUp
+options:
+  bundleIdPrefix: cz.stayup
+  deploymentTarget:
+    macOS: "26.0"
+  developmentLanguage: cs
+  createIntermediateGroups: true
+  xcodeVersion: "26.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    MACOSX_DEPLOYMENT_TARGET: "26.0"
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+    DEVELOPMENT_TEAM: ""
+    ENABLE_HARDENED_RUNTIME: YES
+    GENERATE_INFOPLIST_FILE: NO
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+  configs:
+    Release:
+      # Xcode jinak do podpisu ne-archivního sestavení přidá get-task-allow; s ním jde do aplikace
+      # i do pomocného programu vložit cizí kód navzdory Hardened Runtime. Debug zůstává laditelný.
+      CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
+targets:
+  StayUpHelper:
+    type: tool
+    platform: macOS
+    sources:
+      - path: Helper
+        excludes:
+          - "*.plist"
+          - "*.entitlements"
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_NAME: StayUpHelper
+        PRODUCT_BUNDLE_IDENTIFIER: cz.stayup.StayUp.helper
+        INFOPLIST_FILE: Helper/Info.plist
+        CREATE_INFOPLIST_SECTION_IN_BINARY: YES
+        SKIP_INSTALL: YES
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_STYLE: Manual
+        DEVELOPMENT_TEAM: ""
+  StayUp:
+    type: application
+    platform: macOS
+    sources:
+      - path: App
+        excludes:
+          - Info.plist
+          - "*.entitlements"
+      - path: Shared
+      # LaunchDaemon plist -> Stay Up.app/Contents/Library/LaunchDaemons (SMAppService.daemon)
+      - path: Helper/cz.stayup.StayUp.helper.plist
+        optional: true
+        buildPhase:
+          copyFiles:
+            destination: wrapper
+            subpath: Contents/Library/LaunchDaemons
+    dependencies:
+      # Pomocný program -> Stay Up.app/Contents/MacOS/StayUpHelper
+      - target: StayUpHelper
+        embed: true
+        codeSign: true
+        copy:
+          destination: executables
+    settings:
+      base:
+        PRODUCT_NAME: "Stay Up"
+        EXECUTABLE_NAME: StayUp
+        PRODUCT_MODULE_NAME: StayUp
+        PRODUCT_BUNDLE_IDENTIFIER: cz.stayup.StayUp
+        INFOPLIST_FILE: App/Info.plist
+        CODE_SIGN_ENTITLEMENTS: App/StayUp.entitlements
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_STYLE: Manual
+        DEVELOPMENT_TEAM: ""
+        COMBINE_HIDPI_IMAGES: YES
+schemes:
+  StayUp:
+    build:
+      targets:
+        StayUp: all
+        StayUpHelper: all
+    run:
+      config: Debug
+    archive:
+      config: Release

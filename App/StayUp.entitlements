@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<!--
+  Aplikace není v sandboxu (viz README, „Proč bez sandboxu“). Jediné oprávnění: s Hardened Runtime
+  systém bez něj nezobrazí žádost o přístup k poloze, a bez té macOS nevydá název Wi-Fi sítě.
+-->
+<dict>
+	<key>com.apple.security.personal-information.location</key>
+	<true/>
+</dict>
+</plist>

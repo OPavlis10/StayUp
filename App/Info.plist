@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>cs</string>
+	<key>CFBundleDisplayName</key>
+	<string>Stay Up</string>
+	<key>CFBundleExecutable</key>
+	<string>StayUp</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIdentifier</key>
+	<string>cz.stayup.StayUp</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>cs</string>
+	</array>
+	<key>CFBundleName</key>
+	<string>Stay Up</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleSupportedPlatforms</key>
+	<array>
+		<string>MacOSX</string>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>26.0</string>
+	<key>LSUIElement</key>
+	<true/>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string></string>
+	<key>NSLocationUsageDescription</key>
+	<string>Stay Up potřebuje přístup k poloze jen proto, aby mohl zobrazit název Wi‑Fi sítě, ke které je Mac připojený. Polohu nikam neodesílá ani neukládá.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Stay Up potřebuje přístup k poloze jen proto, aby mohl zobrazit název Wi‑Fi sítě, ke které je Mac připojený. Polohu nikam neodesílá ani neukládá.</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+</dict>
+</plist>

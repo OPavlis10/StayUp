@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>cz.stayup.StayUp.helper</string>
+	<key>BundleProgram</key>
+	<string>Contents/MacOS/StayUpHelper</string>
+	<key>MachServices</key>
+	<dict>
+		<key>cz.stayup.StayUp.helper</key>
+		<true/>
+	</dict>
+	<key>RunAtLoad</key>
+	<true/>
+	<!--
+	  Pojistka pro pád nebo SIGKILL daemona, když drží disablesleep 1 nebo lowpowermode 1: launchd ho po nečistém
+	  konci (signál, nenulový návratový kód) spustí znovu a úklid podle značky při startu
+	  nastavení vrátí. Čistý konec při nečinnosti (exit 0) se neobnovuje; daemon tak skončí jen
+	  tehdy, když žádná značka nezbyla, a jinak dál startuje na vyžádání přes MachServices.
+	  PathState záměrně ne (launchd.plist(5) ho označuje za nespolehlivý a hrozila by smyčka).
+	  Zbytková mezera: launchd čeká před obnovením zhruba 10 s (ThrottleInterval) a po
+	  odregistraci služby už ji nespouští.
+	-->
+	<key>KeepAlive</key>
+	<dict>
+		<key>SuccessfulExit</key>
+		<false/>
+	</dict>
+	<!-- Vrácení nastavení při SIGTERM může trvat až 3 pokusy po 17 s; výchozích 20 s by nestačilo.
+	     Kdyby se pmset zasekl u obou režimů a nestačilo ani 60 s, launchd daemon spustí znovu
+	     a vrácení dokončí úklid podle značek při startu. -->
+	<key>ExitTimeOut</key>
+	<integer>60</integer>
+	<key>AssociatedBundleIdentifiers</key>
+	<array>
+		<string>cz.stayup.StayUp</string>
+	</array>
+	<key>ProcessType</key>
+	<string>Background</string>
+</dict>
+</plist>

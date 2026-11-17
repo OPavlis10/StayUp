@@ -1,0 +1,735 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0004A05B8596E462E1FD77D7 /* EnergyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A42B18CF1DA0864D9C45B377 /* EnergyFormatter.swift */; };
+		0559D20366969AF17E6778B5 /* DisplaySleeper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F9F1E03C9B6A51AEB84B5AA /* DisplaySleeper.swift */; };
+		0CB46DB8AED4E5D8745B3B86 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43230EDBD72FFD846E02DAD2 /* SettingsView.swift */; };
+		1AC7E2D5314C4FB6C0BEDD28 /* StayUpApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CB464370F24729844AFD487 /* StayUpApp.swift */; };
+		25981D5DE8882EDD9DFECB95 /* Sparkline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0198C0D1D5729E13728FED /* Sparkline.swift */; };
+		2AF3CA7A9018D1996101E8E0 /* SleepController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70242E7A1C5ABAC061EF6D0E /* SleepController.swift */; };
+		2CE556B826F9D9FCD9493475 /* HelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 379F13254523D025AD70044D /* HelperProtocol.swift */; };
+		2DED7067CBC92F4149F48AE5 /* AwakeAssertion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82D70DCA17CF6A4954956F36 /* AwakeAssertion.swift */; };
+		30B7F21BC67EC057DEDE4903 /* EnergyCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB40B761FEE092C41252A535 /* EnergyCollector.swift */; };
+		3CE7F3BF1A8AE3D5F87DFE59 /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDD7A79C2E2E951FD3B59E29 /* Formatters.swift */; };
+		3D37AEA7183E6E582ABE57E1 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E042497F1484944C517334F /* Log.swift */; };
+		3F6D885A6C22CFF1AA85FAB5 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 756629B0C6525D33104448FE /* Localizable.xcstrings */; };
+		41673AF90DC36C8143436D74 /* Metrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3CBEA9C4746554AECEBEAA0 /* Metrics.swift */; };
+		491AE165B4C44948C052F937 /* StayUpHelper in Embed Dependencies */ = {isa = PBXBuildFile; fileRef = 15D6810B9B24307A583D88F8 /* StayUpHelper */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4A474A94926EFF14960C8EBA /* HelperController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7F8013AA90E45A151240BF /* HelperController.swift */; };
+		4A5F71CB6469017A717FCC9C /* NetworkWatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D35582F9BA3CCB4A7E4E0C5 /* NetworkWatch.swift */; };
+		4DD1673EE9AC3657C765A60B /* SystemPower.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9B7E125CDA0D05CF54A0D37 /* SystemPower.swift */; };
+		4FC3D8E09767B145B1CEED75 /* DiskSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30BC04D1D7E158CDFE1E5F5 /* DiskSampler.swift */; };
+		53B9C10ED7BBF06FB93F547C /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 3F784370371ED7A27A9DC4FD /* AppIcon.icns */; };
+		5BB0710B3D7A699256BCC88B /* NetworkSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D2EFEA70D59B04AEAE36B2 /* NetworkSampler.swift */; };
+		602690B57812344E3E5E099A /* HelperClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E8E318F911243595073F54 /* HelperClient.swift */; };
+		6F0D80ABB04CE91382D094BF /* ProcessMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 089F82BBDDA9AD9A7B78E733 /* ProcessMatcher.swift */; };
+		6FC51ED02F85E58DE537D96F /* Notifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EECBA8DAFD883D961EF330F /* Notifier.swift */; };
+		845502347F5E57377E7F2276 /* HelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 379F13254523D025AD70044D /* HelperProtocol.swift */; };
+		8ED8FF52997AD4914684818F /* EnergyModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17A37CF1CB61282846CD8670 /* EnergyModels.swift */; };
+		8F2253A8F938CC2366C8885A /* HelperListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09E5E6C68DAE3CF1FE651AE0 /* HelperListener.swift */; };
+		8F7CBAB13807A2490A387279 /* ClientValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B6F37687806CB5390F89615 /* ClientValidator.swift */; };
+		968D9DC069CF3BAEFFCAB227 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169521D56392B4DACDC0C7AE /* AppModel.swift */; };
+		9693076DFBFE9E48575DCEA8 /* CPUSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B6F5A0AD37CA9B2F293D55 /* CPUSampler.swift */; };
+		97D7EFE077E44922794A4E77 /* cz.stayup.StayUp.helper.plist in CopyFiles */ = {isa = PBXBuildFile; fileRef = 925156EE9F70C5FEBD4E7AC7 /* cz.stayup.StayUp.helper.plist */; };
+		9817757F6E167A986F6057C3 /* SafetyMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A7130FC75657058E516B0B /* SafetyMonitor.swift */; };
+		A2773489B523A13EAAE308B1 /* NetworkPathState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 782FA877F8E0EA812691718B /* NetworkPathState.swift */; };
+		A88DA2331CB5088BA5DAB095 /* MarkerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08453B0F09FE2F3E689FF4E9 /* MarkerStore.swift */; };
+		AA1AB7444C11095894C146C8 /* PanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F32FD860285A29841B4E03B /* PanelView.swift */; };
+		ABFB948505BD7CACD55B8F76 /* PowerDrawSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4D5892FBEB3C26FE194EDF /* PowerDrawSampler.swift */; };
+		BB5D7506B3FC093F761C4C6F /* ActivityWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058170F770C6D11DCF9B58E5 /* ActivityWatcher.swift */; };
+		BBD64379BA2B92BBAD19A1A0 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15CE1BA54052F36A1E68F21C /* main.swift */; };
+		BE19792951A42BD510F8D0EB /* EnergySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D07686A5F333D6592E719D /* EnergySection.swift */; };
+		C49F3F9B9A910D48716C064F /* MetricsSelfTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CB8FA04CCF3C8724DBFFDD /* MetricsSelfTest.swift */; };
+		C5217600957BA61F4AC4D793 /* MetricsCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8086B42E8C5A5A43D30EA18D /* MetricsCollector.swift */; };
+		CD4F378568E5D3C4C53629CC /* MemorySampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95F52B96C6121377236DA8E0 /* MemorySampler.swift */; };
+		CDEFD05A02C651DC9399B519 /* AwakeDuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1105EA7C86FBE7DCB64689FD /* AwakeDuration.swift */; };
+		CE853C7E16DD5AF73B5BF918 /* TopProcessSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D66948040E853DC3679EC332 /* TopProcessSampler.swift */; };
+		E1CC192BDC2EC20371092136 /* MetricsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD900BEB0013DCBEF886397F /* MetricsSection.swift */; };
+		E2CB7F99B5B8CFE9CA7BB886 /* SleepSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BD9D0DBF15FDE3B136E2747 /* SleepSection.swift */; };
+		E33B80D4748FFF4A1D58559B /* HeldSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9952DA74DBF74AA128220222 /* HeldSetting.swift */; };
+		E82C55C2A8CA5FB80575E355 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7271ECFF180CD6CBC7591D30 /* Components.swift */; };
+		EC0231DC07B22E44BB2E26B3 /* AIActivityMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E418A16B23FC5B11CD98933 /* AIActivityMonitor.swift */; };
+		EFCF8818E3119842CCBF73F8 /* OutageTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FF59ABB8AFDC13060E89884 /* OutageTracker.swift */; };
+		F14CF57AFA6BE9991CB8B47C /* IdleTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F2CF20706CB149DEDF6813 /* IdleTracker.swift */; };
+		F32C71ADE194F5A32C92F98A /* GPUSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07582556FF888438C0D3024B /* GPUSampler.swift */; };
+		F5A11A57659DDCD32161A82E /* MenuBarLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43FB58B525D2924756D059CB /* MenuBarLabel.swift */; };
+		F5D7BDBBAD574F765CE2AE01 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90343BFB4B1FD5F75FF28C46 /* AppSettings.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		897A7875C00BD1C73EB5137A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 72DEE6A656597038A8832AC0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A8DA7B345E19EC0D29BD6A7D;
+			remoteInfo = StayUpHelper;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		48284068CBBFAF8C7150B5B6 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Contents/Library/LaunchDaemons;
+			dstSubfolderSpec = 1;
+			files = (
+				97D7EFE077E44922794A4E77 /* cz.stayup.StayUp.helper.plist in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4F4B7D2529E8ED4A221398E2 /* Embed Dependencies */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				491AE165B4C44948C052F937 /* StayUpHelper in Embed Dependencies */,
+			);
+			name = "Embed Dependencies";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		058170F770C6D11DCF9B58E5 /* ActivityWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityWatcher.swift; sourceTree = "<group>"; };
+		07582556FF888438C0D3024B /* GPUSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUSampler.swift; sourceTree = "<group>"; };
+		08453B0F09FE2F3E689FF4E9 /* MarkerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerStore.swift; sourceTree = "<group>"; };
+		089F82BBDDA9AD9A7B78E733 /* ProcessMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessMatcher.swift; sourceTree = "<group>"; };
+		09E5E6C68DAE3CF1FE651AE0 /* HelperListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperListener.swift; sourceTree = "<group>"; };
+		1105EA7C86FBE7DCB64689FD /* AwakeDuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AwakeDuration.swift; sourceTree = "<group>"; };
+		15CE1BA54052F36A1E68F21C /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		15D6810B9B24307A583D88F8 /* StayUpHelper */ = {isa = PBXFileReference; includeInIndex = 0; path = StayUpHelper; sourceTree = BUILT_PRODUCTS_DIR; };
+		169521D56392B4DACDC0C7AE /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		17A37CF1CB61282846CD8670 /* EnergyModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnergyModels.swift; sourceTree = "<group>"; };
+		1B0198C0D1D5729E13728FED /* Sparkline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sparkline.swift; sourceTree = "<group>"; };
+		2F9F1E03C9B6A51AEB84B5AA /* DisplaySleeper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplaySleeper.swift; sourceTree = "<group>"; };
+		309CBDACFE504065D912D017 /* StayUp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StayUp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		379F13254523D025AD70044D /* HelperProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperProtocol.swift; sourceTree = "<group>"; };
+		3F784370371ED7A27A9DC4FD /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
+		3FF59ABB8AFDC13060E89884 /* OutageTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutageTracker.swift; sourceTree = "<group>"; };
+		43230EDBD72FFD846E02DAD2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		43FB58B525D2924756D059CB /* MenuBarLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarLabel.swift; sourceTree = "<group>"; };
+		4CB464370F24729844AFD487 /* StayUpApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StayUpApp.swift; sourceTree = "<group>"; };
+		4EECBA8DAFD883D961EF330F /* Notifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifier.swift; sourceTree = "<group>"; };
+		56D07686A5F333D6592E719D /* EnergySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnergySection.swift; sourceTree = "<group>"; };
+		58CB8FA04CCF3C8724DBFFDD /* MetricsSelfTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsSelfTest.swift; sourceTree = "<group>"; };
+		5F32FD860285A29841B4E03B /* PanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelView.swift; sourceTree = "<group>"; };
+		66A7130FC75657058E516B0B /* SafetyMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafetyMonitor.swift; sourceTree = "<group>"; };
+		6D35582F9BA3CCB4A7E4E0C5 /* NetworkWatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkWatch.swift; sourceTree = "<group>"; };
+		6E418A16B23FC5B11CD98933 /* AIActivityMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIActivityMonitor.swift; sourceTree = "<group>"; };
+		70242E7A1C5ABAC061EF6D0E /* SleepController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepController.swift; sourceTree = "<group>"; };
+		7271ECFF180CD6CBC7591D30 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		756629B0C6525D33104448FE /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		77D2EFEA70D59B04AEAE36B2 /* NetworkSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkSampler.swift; sourceTree = "<group>"; };
+		782FA877F8E0EA812691718B /* NetworkPathState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkPathState.swift; sourceTree = "<group>"; };
+		7B4D5892FBEB3C26FE194EDF /* PowerDrawSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerDrawSampler.swift; sourceTree = "<group>"; };
+		7B6F37687806CB5390F89615 /* ClientValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientValidator.swift; sourceTree = "<group>"; };
+		7BD9D0DBF15FDE3B136E2747 /* SleepSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepSection.swift; sourceTree = "<group>"; };
+		7E042497F1484944C517334F /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
+		8086B42E8C5A5A43D30EA18D /* MetricsCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsCollector.swift; sourceTree = "<group>"; };
+		82D70DCA17CF6A4954956F36 /* AwakeAssertion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AwakeAssertion.swift; sourceTree = "<group>"; };
+		90343BFB4B1FD5F75FF28C46 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		925156EE9F70C5FEBD4E7AC7 /* cz.stayup.StayUp.helper.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = cz.stayup.StayUp.helper.plist; sourceTree = "<group>"; };
+		95F52B96C6121377236DA8E0 /* MemorySampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySampler.swift; sourceTree = "<group>"; };
+		9952DA74DBF74AA128220222 /* HeldSetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeldSetting.swift; sourceTree = "<group>"; };
+		A30BC04D1D7E158CDFE1E5F5 /* DiskSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskSampler.swift; sourceTree = "<group>"; };
+		A42B18CF1DA0864D9C45B377 /* EnergyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnergyFormatter.swift; sourceTree = "<group>"; };
+		AD7F8013AA90E45A151240BF /* HelperController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperController.swift; sourceTree = "<group>"; };
+		B3B6F5A0AD37CA9B2F293D55 /* CPUSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUSampler.swift; sourceTree = "<group>"; };
+		C3CBEA9C4746554AECEBEAA0 /* Metrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Metrics.swift; sourceTree = "<group>"; };
+		C4F2CF20706CB149DEDF6813 /* IdleTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdleTracker.swift; sourceTree = "<group>"; };
+		C9B7E125CDA0D05CF54A0D37 /* SystemPower.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemPower.swift; sourceTree = "<group>"; };
+		CB40B761FEE092C41252A535 /* EnergyCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnergyCollector.swift; sourceTree = "<group>"; };
+		CDD7A79C2E2E951FD3B59E29 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
+		D2E8E318F911243595073F54 /* HelperClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperClient.swift; sourceTree = "<group>"; };
+		D66948040E853DC3679EC332 /* TopProcessSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopProcessSampler.swift; sourceTree = "<group>"; };
+		DD900BEB0013DCBEF886397F /* MetricsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsSection.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		00980F20D042A413AB87A4E3 /* Energy */ = {
+			isa = PBXGroup;
+			children = (
+				CB40B761FEE092C41252A535 /* EnergyCollector.swift */,
+				A42B18CF1DA0864D9C45B377 /* EnergyFormatter.swift */,
+				17A37CF1CB61282846CD8670 /* EnergyModels.swift */,
+				7B4D5892FBEB3C26FE194EDF /* PowerDrawSampler.swift */,
+				D66948040E853DC3679EC332 /* TopProcessSampler.swift */,
+			);
+			path = Energy;
+			sourceTree = "<group>";
+		};
+		00D9B1E4C2F2A92850F1D51D /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				90343BFB4B1FD5F75FF28C46 /* AppSettings.swift */,
+				1105EA7C86FBE7DCB64689FD /* AwakeDuration.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		0A5E01D27143CECE9FF725D1 /* Metrics */ = {
+			isa = PBXGroup;
+			children = (
+				B3B6F5A0AD37CA9B2F293D55 /* CPUSampler.swift */,
+				A30BC04D1D7E158CDFE1E5F5 /* DiskSampler.swift */,
+				CDD7A79C2E2E951FD3B59E29 /* Formatters.swift */,
+				07582556FF888438C0D3024B /* GPUSampler.swift */,
+				95F52B96C6121377236DA8E0 /* MemorySampler.swift */,
+				8086B42E8C5A5A43D30EA18D /* MetricsCollector.swift */,
+				58CB8FA04CCF3C8724DBFFDD /* MetricsSelfTest.swift */,
+				77D2EFEA70D59B04AEAE36B2 /* NetworkSampler.swift */,
+			);
+			path = Metrics;
+			sourceTree = "<group>";
+		};
+		18B07C697CEC1625E6FE3848 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				7271ECFF180CD6CBC7591D30 /* Components.swift */,
+				56D07686A5F333D6592E719D /* EnergySection.swift */,
+				43FB58B525D2924756D059CB /* MenuBarLabel.swift */,
+				DD900BEB0013DCBEF886397F /* MetricsSection.swift */,
+				5F32FD860285A29841B4E03B /* PanelView.swift */,
+				43230EDBD72FFD846E02DAD2 /* SettingsView.swift */,
+				7BD9D0DBF15FDE3B136E2747 /* SleepSection.swift */,
+				1B0198C0D1D5729E13728FED /* Sparkline.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		25D33E0526615DBB181151EA /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				C3CBEA9C4746554AECEBEAA0 /* Metrics.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		440EA9A6AE20127AD32C73E7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				309CBDACFE504065D912D017 /* StayUp.app */,
+				15D6810B9B24307A583D88F8 /* StayUpHelper */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		53D7AE8FF3EB1F5B806241A9 /* Activity */ = {
+			isa = PBXGroup;
+			children = (
+				058170F770C6D11DCF9B58E5 /* ActivityWatcher.swift */,
+				6E418A16B23FC5B11CD98933 /* AIActivityMonitor.swift */,
+				C4F2CF20706CB149DEDF6813 /* IdleTracker.swift */,
+				089F82BBDDA9AD9A7B78E733 /* ProcessMatcher.swift */,
+			);
+			path = Activity;
+			sourceTree = "<group>";
+		};
+		6CB42FB0C0A6DDDC367ED330 = {
+			isa = PBXGroup;
+			children = (
+				AC3502AF84B05811B4A20021 /* App */,
+				727A7FEEB66F5E3A6A65DC69 /* Helper */,
+				9EA7626A53098B44F70EC4CF /* Shared */,
+				440EA9A6AE20127AD32C73E7 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		727A7FEEB66F5E3A6A65DC69 /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				7B6F37687806CB5390F89615 /* ClientValidator.swift */,
+				925156EE9F70C5FEBD4E7AC7 /* cz.stayup.StayUp.helper.plist */,
+				9952DA74DBF74AA128220222 /* HeldSetting.swift */,
+				AD7F8013AA90E45A151240BF /* HelperController.swift */,
+				09E5E6C68DAE3CF1FE651AE0 /* HelperListener.swift */,
+				7E042497F1484944C517334F /* Log.swift */,
+				15CE1BA54052F36A1E68F21C /* main.swift */,
+				08453B0F09FE2F3E689FF4E9 /* MarkerStore.swift */,
+				C9B7E125CDA0D05CF54A0D37 /* SystemPower.swift */,
+			);
+			path = Helper;
+			sourceTree = "<group>";
+		};
+		75EE9AF65C6E4549CA954598 /* Connectivity */ = {
+			isa = PBXGroup;
+			children = (
+				782FA877F8E0EA812691718B /* NetworkPathState.swift */,
+				6D35582F9BA3CCB4A7E4E0C5 /* NetworkWatch.swift */,
+				3FF59ABB8AFDC13060E89884 /* OutageTracker.swift */,
+			);
+			path = Connectivity;
+			sourceTree = "<group>";
+		};
+		9EA7626A53098B44F70EC4CF /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				379F13254523D025AD70044D /* HelperProtocol.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		AC3502AF84B05811B4A20021 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				3F784370371ED7A27A9DC4FD /* AppIcon.icns */,
+				169521D56392B4DACDC0C7AE /* AppModel.swift */,
+				756629B0C6525D33104448FE /* Localizable.xcstrings */,
+				4CB464370F24729844AFD487 /* StayUpApp.swift */,
+				53D7AE8FF3EB1F5B806241A9 /* Activity */,
+				75EE9AF65C6E4549CA954598 /* Connectivity */,
+				00980F20D042A413AB87A4E3 /* Energy */,
+				0A5E01D27143CECE9FF725D1 /* Metrics */,
+				25D33E0526615DBB181151EA /* Models */,
+				B15BE19E236AD2EDBBC5B465 /* Power */,
+				00D9B1E4C2F2A92850F1D51D /* Settings */,
+				18B07C697CEC1625E6FE3848 /* UI */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		B15BE19E236AD2EDBBC5B465 /* Power */ = {
+			isa = PBXGroup;
+			children = (
+				82D70DCA17CF6A4954956F36 /* AwakeAssertion.swift */,
+				2F9F1E03C9B6A51AEB84B5AA /* DisplaySleeper.swift */,
+				D2E8E318F911243595073F54 /* HelperClient.swift */,
+				4EECBA8DAFD883D961EF330F /* Notifier.swift */,
+				66A7130FC75657058E516B0B /* SafetyMonitor.swift */,
+				70242E7A1C5ABAC061EF6D0E /* SleepController.swift */,
+			);
+			path = Power;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A8DA7B345E19EC0D29BD6A7D /* StayUpHelper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1E19888E3FBE2388753D4D77 /* Build configuration list for PBXNativeTarget "StayUpHelper" */;
+			buildPhases = (
+				C4F5EFD8A349E864F85B63F2 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = StayUpHelper;
+			packageProductDependencies = (
+			);
+			productName = StayUpHelper;
+			productReference = 15D6810B9B24307A583D88F8 /* StayUpHelper */;
+			productType = "com.apple.product-type.tool";
+		};
+		BF49B4C6856A77836E474E4A /* StayUp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C8D42232DF0E95AA09006DD2 /* Build configuration list for PBXNativeTarget "StayUp" */;
+			buildPhases = (
+				0F98043883A0C438A5BEDB81 /* Sources */,
+				805481921F03310F5E00609B /* Resources */,
+				48284068CBBFAF8C7150B5B6 /* CopyFiles */,
+				4F4B7D2529E8ED4A221398E2 /* Embed Dependencies */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B707C5023C823E76E03666D4 /* PBXTargetDependency */,
+			);
+			name = StayUp;
+			packageProductDependencies = (
+			);
+			productName = StayUp;
+			productReference = 309CBDACFE504065D912D017 /* StayUp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		72DEE6A656597038A8832AC0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					A8DA7B345E19EC0D29BD6A7D = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+					};
+					BF49B4C6856A77836E474E4A = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = 710D19A552A835EC0BCCA462 /* Build configuration list for PBXProject "StayUp" */;
+			developmentRegion = cs;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				cs,
+			);
+			mainGroup = 6CB42FB0C0A6DDDC367ED330;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 440EA9A6AE20127AD32C73E7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A8DA7B345E19EC0D29BD6A7D /* StayUpHelper */,
+				BF49B4C6856A77836E474E4A /* StayUp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		805481921F03310F5E00609B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53B9C10ED7BBF06FB93F547C /* AppIcon.icns in Resources */,
+				3F6D885A6C22CFF1AA85FAB5 /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0F98043883A0C438A5BEDB81 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EC0231DC07B22E44BB2E26B3 /* AIActivityMonitor.swift in Sources */,
+				BB5D7506B3FC093F761C4C6F /* ActivityWatcher.swift in Sources */,
+				968D9DC069CF3BAEFFCAB227 /* AppModel.swift in Sources */,
+				F5D7BDBBAD574F765CE2AE01 /* AppSettings.swift in Sources */,
+				2DED7067CBC92F4149F48AE5 /* AwakeAssertion.swift in Sources */,
+				CDEFD05A02C651DC9399B519 /* AwakeDuration.swift in Sources */,
+				9693076DFBFE9E48575DCEA8 /* CPUSampler.swift in Sources */,
+				E82C55C2A8CA5FB80575E355 /* Components.swift in Sources */,
+				4FC3D8E09767B145B1CEED75 /* DiskSampler.swift in Sources */,
+				0559D20366969AF17E6778B5 /* DisplaySleeper.swift in Sources */,
+				30B7F21BC67EC057DEDE4903 /* EnergyCollector.swift in Sources */,
+				0004A05B8596E462E1FD77D7 /* EnergyFormatter.swift in Sources */,
+				8ED8FF52997AD4914684818F /* EnergyModels.swift in Sources */,
+				BE19792951A42BD510F8D0EB /* EnergySection.swift in Sources */,
+				3CE7F3BF1A8AE3D5F87DFE59 /* Formatters.swift in Sources */,
+				F32C71ADE194F5A32C92F98A /* GPUSampler.swift in Sources */,
+				602690B57812344E3E5E099A /* HelperClient.swift in Sources */,
+				845502347F5E57377E7F2276 /* HelperProtocol.swift in Sources */,
+				F14CF57AFA6BE9991CB8B47C /* IdleTracker.swift in Sources */,
+				CD4F378568E5D3C4C53629CC /* MemorySampler.swift in Sources */,
+				F5A11A57659DDCD32161A82E /* MenuBarLabel.swift in Sources */,
+				41673AF90DC36C8143436D74 /* Metrics.swift in Sources */,
+				C5217600957BA61F4AC4D793 /* MetricsCollector.swift in Sources */,
+				E1CC192BDC2EC20371092136 /* MetricsSection.swift in Sources */,
+				C49F3F9B9A910D48716C064F /* MetricsSelfTest.swift in Sources */,
+				A2773489B523A13EAAE308B1 /* NetworkPathState.swift in Sources */,
+				5BB0710B3D7A699256BCC88B /* NetworkSampler.swift in Sources */,
+				4A5F71CB6469017A717FCC9C /* NetworkWatch.swift in Sources */,
+				6FC51ED02F85E58DE537D96F /* Notifier.swift in Sources */,
+				EFCF8818E3119842CCBF73F8 /* OutageTracker.swift in Sources */,
+				AA1AB7444C11095894C146C8 /* PanelView.swift in Sources */,
+				ABFB948505BD7CACD55B8F76 /* PowerDrawSampler.swift in Sources */,
+				6F0D80ABB04CE91382D094BF /* ProcessMatcher.swift in Sources */,
+				9817757F6E167A986F6057C3 /* SafetyMonitor.swift in Sources */,
+				0CB46DB8AED4E5D8745B3B86 /* SettingsView.swift in Sources */,
+				2AF3CA7A9018D1996101E8E0 /* SleepController.swift in Sources */,
+				E2CB7F99B5B8CFE9CA7BB886 /* SleepSection.swift in Sources */,
+				25981D5DE8882EDD9DFECB95 /* Sparkline.swift in Sources */,
+				1AC7E2D5314C4FB6C0BEDD28 /* StayUpApp.swift in Sources */,
+				CE853C7E16DD5AF73B5BF918 /* TopProcessSampler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C4F5EFD8A349E864F85B63F2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8F7CBAB13807A2490A387279 /* ClientValidator.swift in Sources */,
+				E33B80D4748FFF4A1D58559B /* HeldSetting.swift in Sources */,
+				4A474A94926EFF14960C8EBA /* HelperController.swift in Sources */,
+				8F2253A8F938CC2366C8885A /* HelperListener.swift in Sources */,
+				2CE556B826F9D9FCD9493475 /* HelperProtocol.swift in Sources */,
+				3D37AEA7183E6E582ABE57E1 /* Log.swift in Sources */,
+				A88DA2331CB5088BA5DAB095 /* MarkerStore.swift in Sources */,
+				4DD1673EE9AC3657C765A60B /* SystemPower.swift in Sources */,
+				BBD64379BA2B92BBAD19A1A0 /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B707C5023C823E76E03666D4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A8DA7B345E19EC0D29BD6A7D /* StayUpHelper */;
+			targetProxy = 897A7875C00BD1C73EB5137A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		2A98778C6098B22A9346CB84 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/StayUp.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				EXECUTABLE_NAME = StayUp;
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = cz.stayup.StayUp;
+				PRODUCT_MODULE_NAME = StayUp;
+				PRODUCT_NAME = "Stay Up";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		31740D6EE8363FA2913E10D9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Helper/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = cz.stayup.StayUp.helper;
+				PRODUCT_NAME = StayUpHelper;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		86CA578558032755AB751F34 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Helper/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = cz.stayup.StayUp.helper;
+				PRODUCT_NAME = StayUpHelper;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		8CE7255058C6DC142B600BE1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		DDEC5E0B5D4F619DEA781720 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/StayUp.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				EXECUTABLE_NAME = StayUp;
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = cz.stayup.StayUp;
+				PRODUCT_MODULE_NAME = StayUp;
+				PRODUCT_NAME = "Stay Up";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		E4FABFEF3B78D4135D01F545 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1E19888E3FBE2388753D4D77 /* Build configuration list for PBXNativeTarget "StayUpHelper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				86CA578558032755AB751F34 /* Debug */,
+				31740D6EE8363FA2913E10D9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		710D19A552A835EC0BCCA462 /* Build configuration list for PBXProject "StayUp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8CE7255058C6DC142B600BE1 /* Debug */,
+				E4FABFEF3B78D4135D01F545 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C8D42232DF0E95AA09006DD2 /* Build configuration list for PBXNativeTarget "StayUp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2A98778C6098B22A9346CB84 /* Debug */,
+				DDEC5E0B5D4F619DEA781720 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 72DEE6A656597038A8832AC0 /* Project object */;
+}
