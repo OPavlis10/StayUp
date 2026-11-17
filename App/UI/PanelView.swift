@@ -29,6 +29,10 @@ struct PanelView: View {
                 .transition(.opacity)
             }
         }
+        // Obsah drží přesně šířku panelu a kotví vlevo: kdyby se nějaký prvek nevešel, přeteče jen on
+        // (a ořízne se), místo aby se celý obsah vystředil mimo okno.
+        .frame(width: 312, alignment: .leading)
+        .clipped()
         .padding(14)
         .frame(width: 340)
         .frame(maxHeight: Self.maxHeight)

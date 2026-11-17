@@ -60,6 +60,77 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if CommandLine.arguments.contains("--preview-window") {
             showPreviewWindow()
         }
+        if CommandLine.arguments.contains("--auto-open") {
+            // Jen pro měření: po startu otevře skutečný panel pod ikonou v liště.
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(2))
+                for window in NSApp.windows where window.className.contains("StatusBar") {
+                    if let button = Self.firstButton(in: window.contentView) {
+                        button.performClick(nil)
+                        print("AUTO_OPEN clicked")
+                        fflush(stdout)
+                    }
+                }
+            }
+        }
+        if let index = CommandLine.arguments.firstIndex(of: "--snapshot"),
+           CommandLine.arguments.indices.contains(index + 1) {
+            snapshotPanel(to: CommandLine.arguments[index + 1])
+        }
+    }
+
+    private static func firstButton(in view: NSView?) -> NSButton? {
+        guard let view else { return nil }
+        if let button = view as? NSButton { return button }
+        for sub in view.subviews {
+            if let found = firstButton(in: sub) { return found }
+        }
+        return nil
+    }
+
+    /// Jen s argumentem `--snapshot <soubor.png>`: vykreslí panel mimo obrazovku do obrázku a skončí.
+    /// Slouží ke kontrole rozvržení; nepotřebuje oprávnění ke snímání obrazovky. S `--snapshot-on`
+    /// se před snímkem zapne první přepínač (jen blokace spánku, při ukončení se uvolní).
+    private func snapshotPanel(to path: String) {
+        if CommandLine.arguments.contains("--snapshot-on") {
+            AppModel.shared.sleep.setKeepAwake(true)
+        }
+        let host = NSHostingView(rootView: PanelView(model: AppModel.shared))
+        let window = NSWindow(contentRect: NSRect(x: -5000, y: -5000, width: 340, height: 600),
+                              styleMask: [.borderless], backing: .buffered, defer: false)
+        window.appearance = NSAppearance(named: .darkAqua)
+        window.backgroundColor = NSColor(white: 0.13, alpha: 1)
+        window.contentView = host
+        window.isReleasedWhenClosed = false
+        window.orderBack(nil)
+        previewWindow = window
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(4))
+            var size = host.fittingSize
+            let fitting = size
+            // Skutečné okno v liště nemůže být vyšší než obrazovka; snímek to napodobí.
+            if let limit = CommandLine.arguments.firstIndex(of: "--snapshot-height"),
+               CommandLine.arguments.indices.contains(limit + 1),
+               let height = Double(CommandLine.arguments[limit + 1]) {
+                size.height = min(size.height, height)
+            }
+            window.setContentSize(size)
+            host.layoutSubtreeIfNeeded()
+            try? await Task.sleep(for: .seconds(1))
+            if let rep = host.bitmapImageRepForCachingDisplay(in: host.bounds) {
+                if let context = NSGraphicsContext(bitmapImageRep: rep) {
+                    NSGraphicsContext.saveGraphicsState()
+                    NSGraphicsContext.current = context
+                    NSColor(white: 0.13, alpha: 1).setFill()
+                    host.bounds.fill()
+                    NSGraphicsContext.restoreGraphicsState()
+                }
+                host.cacheDisplay(in: host.bounds, to: rep)
+                try? rep.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: path))
+            }
+            print("SNAPSHOT \(Int(size.width))x\(Int(size.height)) fitting \(Int(fitting.width))x\(Int(fitting.height)) visible \(Int(NSScreen.main?.visibleFrame.height ?? 0))")
+            NSApp.terminate(nil)
+        }
     }
 
     /// Jen s argumentem `--preview-window`: stejný panel v běžném okně, aby šlo rozvržení

@@ -324,20 +324,33 @@ private struct DurationRow: View {
                     .font(.caption)
                     .secondaryText()
             }
-            Picker(selection: Binding(
-                get: { sleep.duration },
-                set: { sleep.setDuration($0) }
-            )) {
+            // Vlastní segmenty místo systémového přepínače: ten má pevnou nejmenší šířku, která byla
+            // větší než panel a vytlačila celý obsah z okna. Tady se čtyři volby dělí o šířku rovným dílem.
+            HStack(spacing: 4) {
                 ForEach(AwakeDuration.allCases) { duration in
-                    Text(verbatim: duration.shortLabel)
-                        .accessibilityLabel(Text(verbatim: duration.label))
-                        .tag(duration)
+                    let selected = sleep.duration == duration
+                    Button {
+                        sleep.setDuration(duration)
+                    } label: {
+                        Text(verbatim: duration.shortLabel)
+                            .font(.callout.weight(selected ? .semibold : .regular))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 5)
+                            .foregroundStyle(selected ? AnyShapeStyle(.white) : AnyShapeStyle(.primary))
+                            .background(
+                                selected ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.quaternary),
+                                in: .rect(cornerRadius: 7)
+                            )
+                            .contentShape(.rect(cornerRadius: 7))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(Text(verbatim: duration.label))
+                    .accessibilityAddTraits(selected ? [.isSelected] : [])
                 }
-            } label: {
-                Text("Doba")
             }
-            .pickerStyle(.segmented)
-            .labelsHidden()
+            .accessibilityElement(children: .contain)
             .accessibilityLabel(Text("Doba, po kterou zůstanou přepínače zapnuté"))
         }
     }
