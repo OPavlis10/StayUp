@@ -89,9 +89,10 @@ struct SleepSection: View {
             symbol: "bolt.shield.fill",
             title: "Nikdy nevypínat, ani po zavření víka",
             subtitle: "Mac zůstane vzhůru i se zavřeným víkem. Zahrnuje i první přepínač. Sám se vypne při slabé baterii nebo přehřívání.",
-            caption: nil,
+            caption: pendingCaption(until: sleep.neverSleepPendingUntil),
+            // Při čekání na povolení zůstává přepínač zapnutý (záměr platí) a jeho vypnutí čekání ruší.
             isOn: Binding(
-                get: { sleep.neverSleepOn },
+                get: { sleep.neverSleepOn || sleep.neverSleepPendingUntil != nil },
                 set: { on in Task { await sleep.setNeverSleep(on) } }
             ),
             isDisabled: sleep.isBusy,
@@ -109,9 +110,9 @@ struct SleepSection: View {
             title: "Úsporný režim",
             subtitle: "Nižší spotřeba a méně tepla, pomalejší procesor. AI v cloudu to nepozná, místní modely zpomalí.",
             caption: lowPowerCaption,
-            captionTint: sleep.lowPowerSupported == false ? .orange : nil,
+            captionTint: sleep.lowPowerSupported == false || sleep.lowPowerPendingUntil != nil ? .orange : nil,
             isOn: Binding(
-                get: { sleep.lowPowerOn },
+                get: { sleep.lowPowerOn || sleep.lowPowerPendingUntil != nil },
                 set: { on in Task { await sleep.setLowPower(on) } }
             ),
             isDisabled: sleep.isBusy || sleep.lowPowerSupported == false,
@@ -124,9 +125,17 @@ struct SleepSection: View {
     /// Poctivě: co platí právě teď a čí to nastavení je.
     private var lowPowerCaption: LocalizedStringKey? {
         if sleep.lowPowerSupported == false { return "Na tomto Macu nedostupné" }
+        if let pending = pendingCaption(until: sleep.lowPowerPendingUntil) { return pending }
         if sleep.lowPowerOn { return nil }
         if sleep.systemLowPowerOn { return "Úsporný režim je teď zapnutý v Nastavení systému." }
         return nil
+    }
+
+    /// Viditelná poznámka u přepínače, který čeká na povolení pomocného procesu.
+    private func pendingCaption(until deadline: Date?) -> LocalizedStringKey? {
+        guard let deadline else { return nil }
+        let time = deadline.formatted(Date.FormatStyle(date: .omitted, time: .shortened).locale(MetricsFormatter.czech))
+        return "Zatím nezapnuto. Zapne se sám, až pomocný proces povolíte; čeká se do \(time)."
     }
 }
 
@@ -206,56 +215,86 @@ private struct HelperApproval: View {
     var body: some View {
         switch sleep.helperState {
         case .ready:
-            EmptyView()
+            // Jen výsledek nové registrace, jinak nic.
+            if sleep.helperNote != nil {
+                block(label: nil, buttons: [])
+            }
         case .notRegistered:
             block(
-                text: "Tento režim i úsporný režim potřebují pomocný proces s právy správce. macOS vás požádá o jednorázové povolení.",
-                showsRegister: true, showsSettings: false
+                label: Text("Tento režim i úsporný režim potřebují pomocný proces s právy správce. macOS vás požádá o jednorázové povolení."),
+                buttons: [.register]
             )
         case .requiresApproval:
             block(
-                text: "Pomocný proces čeká na povolení. V Nastavení systému › Obecné › Položky přihlášení zapněte Stay Up a pak přepínač zapněte znovu.",
-                showsRegister: false, showsSettings: true
+                label: isWaiting
+                    ? Text("Pomocný proces čeká na povolení. V Nastavení systému › Obecné › Položky přihlášení zapněte Stay Up; přepínač se pak zapne sám.")
+                    : Text("Pomocný proces čeká na povolení. V Nastavení systému › Obecné › Položky přihlášení zapněte Stay Up a pak přepínač zapněte znovu."),
+                buttons: [.settings, .recheck]
             )
         case .unavailable(let reason):
-            block(verbatim: reason, showsRegister: true, showsSettings: false)
+            block(label: Text(verbatim: reason), buttons: [.recheck, .reregister])
+        case .missingFromBundle:
+            block(
+                label: Text("V této kopii aplikace pomocný proces chybí. Sestavte nebo nainstalujte Stay Up znovu."),
+                buttons: []
+            )
         }
     }
 
-    private func block(text: LocalizedStringKey, showsRegister: Bool, showsSettings: Bool) -> some View {
-        block(label: Text(text), showsRegister: showsRegister, showsSettings: showsSettings)
+    /// Čeká některý přepínač na povolení, aby se zapnul sám?
+    private var isWaiting: Bool {
+        sleep.neverSleepPendingUntil != nil || sleep.lowPowerPendingUntil != nil
     }
 
-    private func block(verbatim: String, showsRegister: Bool, showsSettings: Bool) -> some View {
-        block(label: Text(verbatim: verbatim), showsRegister: showsRegister, showsSettings: showsSettings)
+    private enum ActionButton {
+        case register, settings, recheck, reregister
     }
 
-    private func block(label: Text, showsRegister: Bool, showsSettings: Bool) -> some View {
+    private func block(label: Text?, buttons: [ActionButton]) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Divider()
-            label
-                .font(.caption)
-                .secondaryText()
-                .fixedSize(horizontal: false, vertical: true)
-            HStack(spacing: 8) {
-                if showsRegister {
-                    Button("Povolit pomocný proces…") {
-                        Task { await sleep.registerHelper() }
-                    }
-                }
-                if showsSettings {
-                    Button("Otevřít Nastavení systému") {
-                        sleep.openLoginItemsSettings()
-                    }
-                    Button("Zkontrolovat znovu") {
-                        Task { await sleep.refreshHelperState() }
-                    }
-                }
+            if let label {
+                label
+                    .font(.caption)
+                    .secondaryText()
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            // Uvnitř skleněné karty obyčejná tlačítka: sklo se na sklo nevrství.
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .disabled(sleep.isBusy)
+            if let note = sleep.helperNote {
+                Text(verbatim: note)
+                    .font(.caption.weight(.medium))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityLabel(Text("Stav pomocného procesu"))
+                    .accessibilityValue(Text(verbatim: note))
+            }
+            if !buttons.isEmpty {
+                HStack(spacing: 8) {
+                    if buttons.contains(.register) {
+                        Button("Povolit pomocný proces…") {
+                            Task { await sleep.registerHelper() }
+                        }
+                    }
+                    if buttons.contains(.settings) {
+                        Button("Otevřít Nastavení systému") {
+                            sleep.openLoginItemsSettings()
+                        }
+                    }
+                    if buttons.contains(.recheck) {
+                        Button("Zkontrolovat znovu") {
+                            Task { await sleep.refreshHelperState() }
+                        }
+                    }
+                    if buttons.contains(.reregister) {
+                        Button("Zaregistrovat znovu") {
+                            Task { await sleep.reregisterHelper() }
+                        }
+                        .help(Text("Odregistruje pomocný proces a zaregistruje ho znovu z této aplikace"))
+                    }
+                }
+                // Uvnitř skleněné karty obyčejná tlačítka: sklo se na sklo nevrství.
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .disabled(sleep.isBusy)
+            }
         }
     }
 }

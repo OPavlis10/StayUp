@@ -50,6 +50,7 @@
 		CD4F378568E5D3C4C53629CC /* MemorySampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95F52B96C6121377236DA8E0 /* MemorySampler.swift */; };
 		CDEFD05A02C651DC9399B519 /* AwakeDuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1105EA7C86FBE7DCB64689FD /* AwakeDuration.swift */; };
 		CE853C7E16DD5AF73B5BF918 /* TopProcessSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D66948040E853DC3679EC332 /* TopProcessSampler.swift */; };
+		DB1E9B74302613AF99D4A2F0 /* LaunchMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7026CF49B61B70DFE7BD64F4 /* LaunchMode.swift */; };
 		E1CC192BDC2EC20371092136 /* MetricsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD900BEB0013DCBEF886397F /* MetricsSection.swift */; };
 		E2CB7F99B5B8CFE9CA7BB886 /* SleepSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BD9D0DBF15FDE3B136E2747 /* SleepSection.swift */; };
 		E33B80D4748FFF4A1D58559B /* HeldSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9952DA74DBF74AA128220222 /* HeldSetting.swift */; };
@@ -124,6 +125,7 @@
 		6D35582F9BA3CCB4A7E4E0C5 /* NetworkWatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkWatch.swift; sourceTree = "<group>"; };
 		6E418A16B23FC5B11CD98933 /* AIActivityMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIActivityMonitor.swift; sourceTree = "<group>"; };
 		70242E7A1C5ABAC061EF6D0E /* SleepController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepController.swift; sourceTree = "<group>"; };
+		7026CF49B61B70DFE7BD64F4 /* LaunchMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchMode.swift; sourceTree = "<group>"; };
 		7271ECFF180CD6CBC7591D30 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		756629B0C6525D33104448FE /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		77D2EFEA70D59B04AEAE36B2 /* NetworkSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkSampler.swift; sourceTree = "<group>"; };
@@ -281,6 +283,7 @@
 			children = (
 				3F784370371ED7A27A9DC4FD /* AppIcon.icns */,
 				169521D56392B4DACDC0C7AE /* AppModel.swift */,
+				7026CF49B61B70DFE7BD64F4 /* LaunchMode.swift */,
 				756629B0C6525D33104448FE /* Localizable.xcstrings */,
 				4CB464370F24729844AFD487 /* StayUpApp.swift */,
 				53D7AE8FF3EB1F5B806241A9 /* Activity */,
@@ -424,6 +427,7 @@
 				602690B57812344E3E5E099A /* HelperClient.swift in Sources */,
 				845502347F5E57377E7F2276 /* HelperProtocol.swift in Sources */,
 				F14CF57AFA6BE9991CB8B47C /* IdleTracker.swift in Sources */,
+				DB1E9B74302613AF99D4A2F0 /* LaunchMode.swift in Sources */,
 				CD4F378568E5D3C4C53629CC /* MemorySampler.swift in Sources */,
 				F5A11A57659DDCD32161A82E /* MenuBarLabel.swift in Sources */,
 				41673AF90DC36C8143436D74 /* Metrics.swift in Sources */,

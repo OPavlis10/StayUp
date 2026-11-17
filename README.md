@@ -20,6 +20,7 @@ Native Swift 6 + SwiftUI for macOS 26 and later. No dependencies, no telemetry, 
 - CPU (total and per core), memory, disk, GPU and network rates with sparklines.
 - Top three processes by energy, power draw in watts and battery time remaining.
 - Network watch: a notification after a minute offline, optionally ending keep-awake.
+- Optional icon-only menu bar item (Settings → "V liště jen ikona"): no CPU number, so the item is redrawn only when a switch changes and idle CPU use drops to almost nothing.
 
 **Safety**
 
@@ -38,7 +39,9 @@ This builds the app with the Command Line Tools, signs it ad hoc and copies it t
 xcodebuild -project StayUp.xcodeproj -scheme StayUp -configuration Release -derivedDataPath build/DerivedData build
 ```
 
-The switches that use the helper need a one-time approval: turn one on, then allow **Stay Up** in System Settings → General → Login Items & Extensions → Allow in the Background.
+The switches that use the helper need a one-time approval: turn one on, then allow **Stay Up** in System Settings → General → Login Items & Extensions → Allow in the Background. The switch then turns itself on (it waits up to 10 minutes; flipping it back cancels the wait). If the helper stops responding or has a different version after an update, the card offers **Zaregistrovat znovu**, which unregisters and registers it again.
+
+Only one copy runs at a time: a second normal launch prints a line and exits. Test launches (`--selftest`, `--selftest-assertion`, `--preview-window`) run alongside it with their own empty settings and never talk to the helper; these three are in every build on purpose. The layout snapshot arguments (`--snapshot`, `--snapshot-on`, `--snapshot-height`, `--auto-open`) exist only in debug builds: Xcode's Debug configuration or `./build.sh debug` (output in `build/debug/`).
 
 ## Layout
 

@@ -19,6 +19,7 @@ struct SettingsView: View {
                     Text("Spouštět po přihlášení")
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                .disabled(!settings.managesLoginItem)   // zkušební spuštění položku přihlášení nemění
                 if let error = settings.launchAtLoginError {
                     Text(verbatim: error)
                         .font(.caption)
@@ -30,6 +31,14 @@ struct SettingsView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 caption("Po novém spuštění aplikace se přepínače obnoví vždy; po restartu Macu jen s touto volbou.")
+            }
+
+            group(title: "Řádek nabídek") {
+                Toggle(isOn: $settings.menuBarIconOnly) {
+                    Text("V liště jen ikona")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                caption("Bez čísla CPU. Ikona se pak překresluje jen při změně stavu přepínačů, takže aplikace v klidu téměř nezatěžuje procesor.")
             }
 
             group(title: "Pojistky režimu Nikdy nevypínat") {

@@ -6,14 +6,16 @@
 #   ./build.sh           sestaví build/Stay Up.app
 #   ./build.sh run       sestaví a spustí
 #   ./build.sh install   sestaví a zkopíruje do /Applications/Stay Up.app
+#   ./build.sh debug     ladicí sestavení do build/debug/Stay Up.app; jen ono umí zkušební
+#                        argumenty --snapshot, --snapshot-on, --snapshot-height a --auto-open
 set -euo pipefail
 
 cd "$(dirname "$0")"
 
 ACTION="${1:-build}"
 case "$ACTION" in
-  build|run|install) ;;
-  *) echo "Použití: $0 [run|install]" >&2; exit 2 ;;
+  build|run|install|debug) ;;
+  *) echo "Použití: $0 [run|install|debug]" >&2; exit 2 ;;
 esac
 
 APP_ID="cz.stayup.StayUp"
@@ -21,6 +23,8 @@ HELPER_ID="cz.stayup.StayUp.helper"
 DAEMON_PLIST="Helper/cz.stayup.StayUp.helper.plist"
 TARGET="arm64-apple-macos26.0"
 APP="build/Stay Up.app"
+# Ladicí sestavení má vlastní složku, aby si ho nikdo nespletl s tím, které se instaluje.
+if [[ "$ACTION" == "debug" ]]; then APP="build/debug/Stay Up.app"; fi
 CONTENTS="$APP/Contents"
 
 # --- SDK -------------------------------------------------------------------
@@ -74,6 +78,8 @@ HELPER_FLAGS=()
 if [[ "$HELPER_PARSE_AS_LIBRARY" == "1" ]]; then HELPER_FLAGS+=(-parse-as-library); fi
 
 SWIFT_FLAGS=(-swift-version 6 -strict-concurrency=complete -O -sdk "$SDK" -target "$TARGET")
+# DEBUG zapíná kód zkušebních argumentů (snímek panelu, automatické otevření). Běžné sestavení ho nemá.
+if [[ "$ACTION" == "debug" ]]; then SWIFT_FLAGS+=(-D DEBUG); fi
 
 # --- Balíček ---------------------------------------------------------------
 rm -rf "$APP"

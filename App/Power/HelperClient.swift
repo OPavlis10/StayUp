@@ -54,6 +54,7 @@ enum HelperClientError: Error, LocalizedError, Sendable, Equatable {
     case incompatibleVersion(found: Int)
     case helperFailed(String?)
     case registration(String)
+    case unregistration(String)
 
     var errorDescription: String? {
         switch self {
@@ -71,6 +72,8 @@ enum HelperClientError: Error, LocalizedError, Sendable, Equatable {
             }
         case .registration(let detail):
             String(localized: "Pomocný proces se nepodařilo zaregistrovat: \(detail)")
+        case .unregistration(let detail):
+            String(localized: "Pomocný proces se nepodařilo odregistrovat: \(detail)")
         }
     }
 }
@@ -136,7 +139,7 @@ final class HelperClient: @unchecked Sendable {
         do {
             try await Self.service.unregister()
         } catch {
-            throw HelperClientError.registration(error.localizedDescription)
+            throw HelperClientError.unregistration(error.localizedDescription)
         }
     }
 

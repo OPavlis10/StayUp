@@ -39,10 +39,18 @@ final class MetricsStore {
     /// Při zavřeném panelu se změna o jediný bod propíše až po této době.
     private static let menuBarSettleInterval: TimeInterval = 12
 
-    func apply(_ snapshot: SystemSnapshot, detail: SampleDetail) {
+    /// `menuBarShowsCPU` = lišta ukazuje i číslo. S volbou „V liště jen ikona" se číslo pro lištu
+    /// vůbec nezapisuje (jen se jednou vyprázdní), takže položka v liště nemá co překreslovat.
+    func apply(_ snapshot: SystemSnapshot, detail: SampleDetail, menuBarShowsCPU: Bool = true) {
         if cpu != snapshot.cpu { cpu = snapshot.cpu }
-        updateMenuBar(snapshot.cpu.map { Int(($0.total * 100).rounded()) },
-                      at: snapshot.timestamp, panelOpen: detail == .full)
+        if menuBarShowsCPU {
+            updateMenuBar(snapshot.cpu.map { Int(($0.total * 100).rounded()) },
+                          at: snapshot.timestamp, panelOpen: detail == .full)
+        } else if menuBarCPUPercent != nil {
+            // Po vypnutí volby se tak hned ukáže čerstvá hodnota, ne ta z doby před zapnutím.
+            menuBarCPUPercent = nil
+            menuBarUpdatedAt = nil
+        }
 
         // Úsporný vzorek ostatní údaje nenese; panel si nechává poslední plné hodnoty.
         guard detail == .full else { return }
@@ -69,6 +77,13 @@ final class MetricsStore {
             Self.append(network.downloadBytesPerSecond, to: &downloadHistory)
             Self.append(network.uploadBytesPerSecond, to: &uploadHistory)
         }
+    }
+
+    /// Vzorkování pro lištu se zastavilo („V liště jen ikona"): staré číslo se zahodí, aby se po
+    /// vypnutí volby ukázala až čerstvá hodnota.
+    func clearMenuBar() {
+        if menuBarCPUPercent != nil { menuBarCPUPercent = nil }
+        menuBarUpdatedAt = nil
     }
 
     func apply(processes snapshot: TopProcessesSnapshot?) {
@@ -135,6 +150,8 @@ final class AppModel {
     @ObservationIgnored private var warmupSamples = 2
     @ObservationIgnored private var started = false
     @ObservationIgnored private var stopped = false
+    /// Smyčka neběží, protože lišta ukazuje jen ikonu a panel je zavřený.
+    @ObservationIgnored private var samplingPaused = false
 
     @ObservationIgnored private let energy = EnergyCollector()
     /// Pořadí vzorku od otevření panelu; podle něj se řídí řidší měření (procesy, příkon).
@@ -157,9 +174,11 @@ final class AppModel {
     private static let minimumGap: Duration = .milliseconds(500)
 
     init() {
-        let settings = AppSettings()
+        // Zkušební spuštění (testy, náhledy) má vlastní prázdné nastavení a pomocný proces nepoužívá.
+        let settings = AppSettings(defaults: LaunchMode.makeDefaults(),
+                                   managesLoginItem: !LaunchMode.isDiagnostic)
         self.settings = settings
-        self.sleep = SleepController(settings: settings)
+        self.sleep = SleepController(settings: settings, usesHelper: !LaunchMode.isDiagnostic)
     }
 
     // MARK: - Životní cyklus
@@ -171,6 +190,7 @@ final class AppModel {
         aiActivity.onExpired = { [weak self] minutes in self?.aiIdleExpired(minutes: minutes) }
         network.onEvent = { [weak self] event in self?.networkEvent(event) }
         observeConditions()
+        observeMenuBarMode()
         syncWatchers()
         // Výchozí stav čítačů vznikl těsně před tímto okamžikem; první vzorek proto musí
         // počkat aspoň `minimumGap`, jinak by se počítal z téměř nulového okna.
@@ -306,9 +326,34 @@ final class AppModel {
 
     // MARK: - Vzorkování
 
+    /// Volba „V liště jen ikona" rozhoduje, jestli smyčka při zavřeném panelu vůbec běží.
+    private func observeMenuBarMode() {
+        withObservationTracking {
+            _ = settings.menuBarIconOnly
+        } onChange: { [weak self] in
+            Task { @MainActor in
+                guard let self, !self.stopped else { return }
+                self.observeMenuBarMode()
+                self.restartSampling()
+            }
+        }
+    }
+
     private func restartSampling() {
         samplingTask?.cancel()
+        samplingTask = nil
         guard started, !stopped else { return }
+        // Zavřený panel a lišta bez čísla: vzorek by nikdo neviděl, smyčka proto neexistuje.
+        guard isPanelOpen || !settings.menuBarIconOnly else {
+            samplingPaused = true
+            metrics.clearMenuBar()
+            return
+        }
+        if samplingPaused {
+            samplingPaused = false
+            // První vzorek po pauze je průměr za celou pauzu; hned ho nahradí další.
+            if !isPanelOpen { warmupSamples = max(warmupSamples, 1) }
+        }
         samplingTask = Task { [weak self] in
             while !Task.isCancelled {
                 guard let wait = await self?.sampleOnce() else { return }
@@ -334,7 +379,7 @@ final class AppModel {
         lastSampleAt = clock.now
         let snapshot = await collector.sample(detail: detail)
         guard !Task.isCancelled else { return (Self.minimumGap, .milliseconds(20)) }
-        metrics.apply(snapshot, detail: detail)
+        metrics.apply(snapshot, detail: detail, menuBarShowsCPU: !settings.menuBarIconOnly)
         if isPanelOpen {
             await sampleEnergy()
             return (Self.openInterval, .milliseconds(100))

@@ -17,6 +17,14 @@ enum StayUpMain {
         if arguments.contains("--selftest-assertion") {
             runAssertionSelfTest()
         }
+        // Běžné spuštění vedle už běžící aplikace nic neotevírá a hned končí: dvě instance by se
+        // přetahovaly o pomocný proces i o zapamatovaný stav přepínačů. Zkušební spuštění smí běžet.
+        // Rozhoduje výhradní zámek souboru, takže ze dvou současných startů zůstane právě jeden
+        // a běžící zkušební spuštění běžnému nepřekáží.
+        if !LaunchMode.isDiagnostic, !LaunchMode.claimSingleInstance() {
+            print("Stay Up už běží; druhé spuštění končí.")
+            exit(0)
+        }
         StayUpApp.main()
     }
 
@@ -43,7 +51,8 @@ struct StayUpApp: App {
         MenuBarExtra {
             PanelView(model: AppModel.shared)
         } label: {
-            MenuBarLabel(metrics: AppModel.shared.metrics, sleep: AppModel.shared.sleep)
+            MenuBarLabel(metrics: AppModel.shared.metrics, sleep: AppModel.shared.sleep,
+                         settings: AppModel.shared.settings)
         }
         .menuBarExtraStyle(.window)
     }
@@ -60,6 +69,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if CommandLine.arguments.contains("--preview-window") {
             showPreviewWindow()
         }
+        #if DEBUG
         if CommandLine.arguments.contains("--auto-open") {
             // Jen pro měření: po startu otevře skutečný panel pod ikonou v liště.
             Task { @MainActor in
@@ -77,7 +87,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
            CommandLine.arguments.indices.contains(index + 1) {
             snapshotPanel(to: CommandLine.arguments[index + 1])
         }
+        #endif
     }
+
+    // Snímek panelu a automatické otevření jsou jen v ladicím sestavení (Debug, `./build.sh debug`).
+    #if DEBUG
 
     private static func firstButton(in view: NSView?) -> NSButton? {
         guard let view else { return nil }
@@ -90,7 +104,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// Jen s argumentem `--snapshot <soubor.png>`: vykreslí panel mimo obrazovku do obrázku a skončí.
     /// Slouží ke kontrole rozvržení; nepotřebuje oprávnění ke snímání obrazovky. S `--snapshot-on`
-    /// se před snímkem zapne první přepínač (jen blokace spánku, při ukončení se uvolní).
+    /// se před snímkem zapne první přepínač (jen blokace spánku v tomto procesu, při ukončení se
+    /// uvolní). Spuštění je zkušební: stav se ukládá jen do oddělené sady nastavení a pomocný
+    /// proces se nevolá (viz `LaunchMode`).
     private func snapshotPanel(to path: String) {
         if CommandLine.arguments.contains("--snapshot-on") {
             AppModel.shared.sleep.setKeepAwake(true)
@@ -132,9 +148,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NSApp.terminate(nil)
         }
     }
+    #endif
 
     /// Jen s argumentem `--preview-window`: stejný panel v běžném okně, aby šlo rozvržení
-    /// vyfotit bez klepání na ikonu v řádku nabídek. Na normální spuštění nemá vliv.
+    /// vyfotit bez klepání na ikonu v řádku nabídek. Na normální spuštění nemá vliv. Spuštění je
+    /// zkušební: má vlastní prázdné nastavení a přepínače s pomocným procesem v něm nejdou zapnout.
     private func showPreviewWindow() {
         NSApp.setActivationPolicy(.regular)
         let controller = NSHostingController(rootView: PanelView(model: AppModel.shared))
@@ -151,6 +169,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         AppModel.shared.shutdown()
+        LaunchMode.discardDiagnosticDefaults()
     }
 
     /// SIGTERM a SIGINT ukončí aplikaci řádně, aby se spánek Macu stihl vrátit.

@@ -13,6 +13,7 @@ Další funkce:
 
 - **Bdít, jen dokud AI pracuje**: při zapnutém A nebo B aplikace každých 15 s sečte čas procesoru sledovaných procesů (výchozí `claude`, `node`, `ollama`, `codex`). Když dohromady nepracují nastavenou dobu (výchozí 10 min, práh 3 % jednoho jádra), vypne B i A a v panelu to oznámí. Seznam procesů, práh a dobu lze změnit v nastavení.
 - **Kdo žere energii** a **Příkon**: tři nejnáročnější aplikace přihlášeného uživatele (CPU a odhad příkonu procesoru) a příkon počítače s výdrží baterie. Měří se jen při otevřeném panelu.
+- **V liště jen ikona** (nastavení, ve výchozím stavu vypnuto): položka v řádku nabídek ukazuje jen symbol stavu bez čísla CPU. Číslo se pak vůbec neaktualizuje, takže se položka překresluje jen při změně stavu přepínačů; právě její překreslování je téměř celá zátěž procesoru v klidu. Stav dál čte VoiceOver.
 - **Hlídání sítě**: při zapnutém bdění aplikace pasivně sleduje stav síťového připojení (nic neodesílá). Po minutě bez připojení pošle oznámení a další, když se připojení vrátí. Volitelně po nastavené době výpadku bdění ukončí.
 
 Bez závislostí, bez síťového provozu, bez telemetrie. Swift 6 s plnou kontrolou souběžnosti, SwiftUI.
@@ -39,11 +40,16 @@ Výsledek je `build/DerivedData/Build/Products/Release/Stay Up.app`. Projekt se 
 ./build.sh            # sestaví build/Stay Up.app
 ./build.sh run        # sestaví a spustí
 ./build.sh install    # sestaví a zkopíruje do /Applications/Stay Up.app
+./build.sh debug      # ladicí sestavení do build/debug/Stay Up.app (se zkušebními argumenty, viz níže)
 ```
 
 `build.sh` použije SDK 26.5 (SDK 27 z Command Line Tools neumí makra SwiftUI), podepíše nejdřív pomocný program a potom celý balíček podpisem ad hoc. Když je k dispozici plné Xcode (vybrané přes `xcode-select`, nebo `/Applications/Xcode.app`), přeloží katalog textů nástrojem `xcstringstool` do `Contents/Resources`. Jen s Command Line Tools se katalog přeskočí; nevadí to, zdrojový jazyk je čeština a klíče jsou přímo české texty. Aplikace je jen česká.
 
 Pro snímek rozvržení bez klikání na ikonu v řádku nabídek spusťte aplikaci s argumentem `--preview-window`: stejný panel se ukáže v běžném okně. Na normální spuštění to nemá vliv.
+
+**Jedna instance a zkušební spuštění.** Aplikace běží jen jednou: když už běží, další běžné spuštění vypíše řádek a skončí. Zkušební spuštění (`--selftest`, `--selftest-assertion`, `--preview-window`) smí běžet vedle ní; tyto tři argumenty jsou záměrně v každém sestavení. Má vlastní prázdné nastavení (sada `cz.stayup.StayUp.diagnostic`, která se při spuštění i ukončení maže), takže nečte ani nepřepisuje zapamatovaný stav přepínačů, a pomocný program nevolá: přepínač B a Úsporný režim v něm zapnout nejdou.
+
+Argumenty `--snapshot <soubor.png>`, `--snapshot-on`, `--snapshot-height <výška>` a `--auto-open` jsou jen v ladicím sestavení (konfigurace Debug v Xcode, nebo `./build.sh debug`). Běžné sestavení (`./build.sh`, Release) je neobsahuje. I pro ně platí pravidla zkušebního spuštění; `--snapshot-on` zapne jen blokaci spánku ve vlastním procesu.
 
 Pro přepínač B aplikaci nainstalujte do `/Applications`. Z jiného umístění systém registraci pomocného programu často odmítne nebo ji po přesunu ztratí.
 
@@ -79,7 +85,9 @@ Při prvním zapnutí přepínače B nebo Úsporného režimu se pomocný progra
 
 **Nastavení systému › Obecné › Položky přihlášení a rozšíření › oddíl „Povolit na pozadí“ › zapnout „Stay Up“.**
 
-Potom přepínač zapněte znovu.
+Přepínač se potom zapne sám: aplikace si záměr pamatuje 10 minut a u přepínače je to napsané. Když ho mezitím vypnete, čekání se zruší. Po 10 minutách bez povolení zůstane vypnutý a stačí ho zapnout znovu.
+
+Čerstvě nainstalovaná aplikace nabízí rovnou „Povolit pomocný proces…“. Když pomocný program neodpovídá nebo má po aktualizaci jinou verzi, karta nabídne **Zaregistrovat znovu**: službu odregistruje a zaregistruje z aktuální aplikace (zapnuté přepínače B a Úsporný režim se předtím řádně vypnou).
 
 ## Ověření
 

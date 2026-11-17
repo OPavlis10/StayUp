@@ -38,6 +38,7 @@ final class AppSettings {
         static let networkEndAfterMinutes = "networkEndAfterMinutes"
         static let lastExpiresAt = "lastExpiresAt"
         static let lastBootTime = "lastStateBootTime"
+        static let menuBarIconOnly = "menuBarIconOnly"
     }
 
     /// Pod kolik procent baterie se režim B sám vypne (5–80).
@@ -66,6 +67,12 @@ final class AppSettings {
     /// Výchozí doba, na kterou se přepínače zapínají.
     var defaultDuration: AwakeDuration {
         didSet { defaults.set(defaultDuration.rawValue, forKey: Key.defaultDuration) }
+    }
+
+    /// „V liště jen ikona": položka v řádku nabídek ukazuje jen symbol stavu, bez čísla CPU.
+    /// Číslo se pak vůbec neaktualizuje, takže se položka překresluje jen při změně stavu přepínačů.
+    var menuBarIconOnly: Bool {
+        didSet { defaults.set(menuBarIconOnly, forKey: Key.menuBarIconOnly) }
     }
 
     // MARK: Bdění podle AI
@@ -129,6 +136,10 @@ final class AppSettings {
     var launchAtLogin: Bool = false {
         didSet {
             guard !syncingLaunchAtLogin, launchAtLogin != oldValue else { return }
+            guard managesLoginItem else {
+                setLaunchAtLoginSilently(oldValue)
+                return
+            }
             applyLaunchAtLogin(launchAtLogin)
         }
     }
@@ -144,6 +155,9 @@ final class AppSettings {
     /// Čas startu systému ve chvíli, kdy se stav ukládal.
     private(set) var lastSavedBootTime: Date?
 
+    /// `false` při zkušebním spuštění: skutečný stav se jen čte, položka přihlášení se nemění
+    /// (jinak by zkouška zaregistrovala po přihlášení právě zkoušenou kopii aplikace).
+    @ObservationIgnored let managesLoginItem: Bool
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private var syncingLaunchAtLogin = false
     @ObservationIgnored private var launchAtLoginGeneration = 0
@@ -151,13 +165,15 @@ final class AppSettings {
     @ObservationIgnored private var launchAtLoginChangeGeneration = 0
     @ObservationIgnored private var launchAtLoginTask: Task<Void, Never>?
 
-    init(defaults: UserDefaults = .standard) {
+    init(defaults: UserDefaults = .standard, managesLoginItem: Bool = true) {
         self.defaults = defaults
+        self.managesLoginItem = managesLoginItem
         let battery = defaults.object(forKey: Key.batteryThreshold) as? Int ?? 20
         batteryThresholdPercent = Self.clamp(battery, to: Self.batteryThresholdRange)
         let thermal = defaults.object(forKey: Key.thermalLimit) as? Int ?? 2
         thermalLimit = Self.clamp(thermal, to: Self.thermalLimitRange)
         restoreSwitchesAfterRestart = defaults.bool(forKey: Key.restoreAfterRestart)
+        menuBarIconOnly = defaults.bool(forKey: Key.menuBarIconOnly)
         autoOffWhenAIIdle = defaults.bool(forKey: Key.autoOffWhenAIIdle)
         let patterns = ProcessMatcher.normalize(defaults.stringArray(forKey: Key.aiProcessPatterns) ?? [])
         aiProcessPatterns = patterns.isEmpty ? ProcessMatcher.defaultPatterns : patterns

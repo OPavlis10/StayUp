@@ -7,7 +7,10 @@ enum HelperState: Sendable, Equatable {
     case notRegistered
     case requiresApproval
     case ready
+    /// Daemon je povolený, ale nejde s ním mluvit (jiná verze, chyba spojení). Text je důvod.
     case unavailable(String)
+    /// V balíčku aplikace chybí popis služby, takže ji nejde zaregistrovat (neúplné sestavení).
+    case missingFromBundle
 }
 
 /// Jediný objekt, se kterým mluví UI: oba přepínače spánku, úsporný režim, časovač a bezpečnostní pojistky.
@@ -29,6 +32,13 @@ final class SleepController {
     /// Úsporný režim podle systému (může ho mít zapnutý uživatel v Nastavení systému).
     private(set) var systemLowPowerOn = ProcessInfo.processInfo.isLowPowerModeEnabled
     private(set) var helperState: HelperState = .notRegistered
+    /// Průběh nebo výsledek nové registrace pomocného procesu; ukazuje ho karta přepínače B.
+    private(set) var helperNote: String?
+    /// Uživatel zapnul režim B, ale pomocný proces čeká na povolení: do této doby se režim zapne
+    /// sám, jakmile povolení přijde. `nil` = na nic se nečeká.
+    private(set) var neverSleepPendingUntil: Date?
+    /// Totéž pro úsporný režim.
+    private(set) var lowPowerPendingUntil: Date?
     private(set) var isBusy = false
     /// Konec společného časovače; `nil` = do vypnutí.
     private(set) var expiresAt: Date?
@@ -56,7 +66,9 @@ final class SleepController {
     }
 
     private enum Operation {
-        case turnOn(Activation)
+        /// `waitUntil`: když je potřeba povolení pomocného procesu, do kdy se má zapnutí dokončit samo
+        /// (`nil` = nečekat, např. při obnově po spuštění).
+        case turnOn(Activation, waitUntil: Date?)
         case turnOff(explanation: String?, notify: Bool)
         /// Vypne B (přes daemon) a potom A; `notice` se ukáže v panelu.
         case stopAll(notice: String)
@@ -64,7 +76,7 @@ final class SleepController {
     }
 
     private enum LowPowerOperation {
-        case turnOn
+        case turnOn(waitUntil: Date?)
         case turnOff(explanation: String?)
     }
 
@@ -77,6 +89,9 @@ final class SleepController {
     let notifier: Notifier
 
     @ObservationIgnored private let client: HelperClient
+    /// `false` při zkušebním spuštění (testy, náhledy): daemon se neregistruje a nic se mu neposílá,
+    /// aby zkouška nezměnila spánek Macu ani nezasáhla do běžící aplikace.
+    @ObservationIgnored private let usesHelper: Bool
     @ObservationIgnored private let assertion = AwakeAssertion()
 
     @ObservationIgnored private var pendingOperation: Operation?
@@ -91,6 +106,16 @@ final class SleepController {
     @ObservationIgnored private var resyncTask: Task<Void, Never>?
     /// Odložená kontrola poté, co systém ohlásil vypnutí úsporného režimu, který drží daemon.
     @ObservationIgnored private var lowPowerExternalCheck: Task<Void, Never>?
+    /// Čekání na povolení pomocného procesu; běží, jen dokud nějaký přepínač čeká.
+    @ObservationIgnored private var approvalTask: Task<Void, Never>?
+    /// Běží zapnutí přepínačů, které čekaly na povolení; druhé se mezitím nespustí.
+    @ObservationIgnored private var resuming = false
+    /// Daemon je povolený, ale při posledním `ensureHelperReady` ještě neodpovídal (chyba spojení,
+    /// vypršení času) a čekající zapnutí to smí zkusit znovu.
+    @ObservationIgnored private var daemonNotAnsweringYet = false
+    /// Kolikrát už čekající zapnutí narazilo na neodpovídající daemon.
+    @ObservationIgnored private var connectionRetries = 0
+    @ObservationIgnored private var reregistering = false
     @ObservationIgnored private var thresholdObservation = 0
 
     @ObservationIgnored private var started = false
@@ -102,11 +127,27 @@ final class SleepController {
     @ObservationIgnored private var helperModeEpoch = 0
 
     private static let safetyCheckInterval: Duration = .seconds(15)
+    /// Jak dlouho po zapnutí přepínače se čeká na povolení pomocného procesu.
+    private static let approvalWait: TimeInterval = 10 * 60
+    private static let approvalPollInterval: Duration = .seconds(3)
+    /// Kolik pokusů (po `approvalPollInterval`) dostane čerstvě povolený daemon, než se chyba
+    /// spojení ukáže a čekání skončí.
+    private static let maxConnectionRetries = 6
 
-    init(settings: AppSettings, client: HelperClient = HelperClient(), notifier: Notifier = Notifier()) {
+    /// Je popis služby daemonu v balíčku aplikace? Bez něj ji systém zaregistrovat nemůže.
+    private static let daemonPlistInBundle: Bool = {
+        let url = Bundle.main.bundleURL
+            .appendingPathComponent("Contents/Library/LaunchDaemons", isDirectory: true)
+            .appendingPathComponent(HelperConstants.daemonPlistName)
+        return FileManager.default.fileExists(atPath: url.path)
+    }()
+
+    init(settings: AppSettings, client: HelperClient = HelperClient(), notifier: Notifier = Notifier(),
+         usesHelper: Bool = true) {
         self.settings = settings
         self.client = client
         self.notifier = notifier
+        self.usesHelper = usesHelper
     }
 
     // MARK: - Životní cyklus
@@ -146,6 +187,10 @@ final class SleepController {
         expiryTask = nil
         lowPowerExternalCheck?.cancel()
         lowPowerExternalCheck = nil
+        approvalTask?.cancel()
+        approvalTask = nil
+        neverSleepPendingUntil = nil
+        lowPowerPendingUntil = nil
         removePowerObservers()
         client.setConnectionHandler(nil)
 
@@ -157,7 +202,7 @@ final class SleepController {
 
         // Jen když tato aplikace mohla některý režim opravdu zapnout (je zapnutý, nebo běží operace,
         // která ho mohla stihnout zapnout). Jinak se daemonu nic neposílá.
-        if hadHelperMode || draining {
+        if usesHelper, hadHelperMode || draining {
             client.disableAllBlocking(timeout: 2)
         }
         // Zánik spojení je druhá pojistka: daemon má režim vázaný na spojení.
@@ -193,18 +238,30 @@ final class SleepController {
     // MARK: - Přepínač B
 
     /// Zapne nebo vypne režim B. Při zapnutí podle potřeby zaregistruje daemon; když je potřeba
-    /// schválení v Nastavení systému, jen nastaví `helperState` (nic neotevírá).
+    /// schválení v Nastavení systému, nastaví `helperState` (nic neotevírá) a záměr si
+    /// `approvalWait` pamatuje: po povolení se režim zapne sám. Vypnutí přepínače čekání ruší.
     func setNeverSleep(_ on: Bool) async {
         guard !isShutDown else { return }
-        await submit(on ? .turnOn(.fresh) : .turnOff(explanation: nil, notify: false))
+        if on {
+            await submit(.turnOn(.fresh, waitUntil: Date().addingTimeInterval(Self.approvalWait)))
+        } else {
+            cancelPending(.neverSleep)
+            await submit(.turnOff(explanation: nil, notify: false))
+        }
     }
 
     // MARK: - Úsporný režim
 
-    /// Zapne nebo vypne úsporný režim macOS přes daemon. Registrace a schválení jako u režimu B.
+    /// Zapne nebo vypne úsporný režim macOS přes daemon. Registrace, schválení i čekání na ně
+    /// jako u režimu B.
     func setLowPower(_ on: Bool) async {
         guard !isShutDown else { return }
-        await submitLowPower(on ? .turnOn : .turnOff(explanation: nil))
+        if on {
+            await submitLowPower(.turnOn(waitUntil: Date().addingTimeInterval(Self.approvalWait)))
+        } else {
+            cancelPending(.lowPower)
+            await submitLowPower(.turnOff(explanation: nil))
+        }
     }
 
     // MARK: - Automatické ukončení bdění
@@ -242,8 +299,13 @@ final class SleepController {
 
     func registerHelper() async {
         guard !isShutDown else { return }
+        guard usesHelper else {
+            lastMessage = Self.diagnosticMessage
+            return
+        }
         beginBusy()
         defer { endBusy() }
+        helperNote = nil
         do {
             apply(registration: try await client.register())
             // Čekání na povolení popisuje přímo karta přepínače B podle `helperState`.
@@ -257,12 +319,110 @@ final class SleepController {
         }
     }
 
+    /// „Zaregistrovat znovu": službu daemonu odregistruje a zaregistruje, takže systém spustí
+    /// daemon z aktuální aplikace (pomůže po aktualizaci nebo při jiné verzi protokolu).
+    /// Všechna volání systému běží mimo hlavní vlákno.
+    func reregisterHelper() async {
+        guard !isShutDown, !reregistering else { return }
+        guard usesHelper else {
+            lastMessage = Self.diagnosticMessage
+            return
+        }
+        reregistering = true
+        defer { reregistering = false }
+        clearMessages()
+
+        // Odregistrace daemon ukončí; režimy, které drží, se proto nejdřív řádně vypnou.
+        cancelPending(.neverSleep)
+        cancelPending(.lowPower)
+        if neverSleepOn { await submit(.turnOff(explanation: nil, notify: false)) }
+        if lowPowerOn { await submitLowPower(.turnOff(explanation: nil)) }
+        guard !isShutDown else { return }
+
+        beginBusy()
+        defer { endBusy() }
+        helperNote = String(localized: "Registruji pomocný proces znovu…")
+
+        do {
+            try await client.unregister()
+        } catch {
+            // Neregistrovanou službu systém odregistrovat odmítne; to nevadí. Vadí jen, když
+            // registrace po chybě opravdu zůstala.
+            let remaining = await client.registrationStatus()
+            if remaining == .enabled || remaining == .requiresApproval {
+                helperNote = nil
+                lastMessage = error.localizedDescription
+                return
+            }
+        }
+        guard !isShutDown else { return }
+
+        let registration: HelperRegistration
+        do {
+            do {
+                registration = try await client.register()
+            } catch {
+                // Těsně po odregistraci systém novou registraci občas odmítne; jeden další pokus.
+                try? await Task.sleep(for: .seconds(1))
+                registration = try await client.register()
+            }
+        } catch {
+            helperNote = nil
+            lastMessage = error.localizedDescription
+            apply(registration: await client.registrationStatus(), keepsUnavailable: false)
+            return
+        }
+        guard !isShutDown else { return }
+
+        switch registration {
+        case .enabled:
+            do {
+                try await verifyHelperVersion()
+            } catch {
+                helperNote = nil
+                helperState = .unavailable(error.localizedDescription)
+                return
+            }
+            helperState = .ready
+            helperNote = String(localized: "Pomocný proces je znovu zaregistrovaný a připravený.")
+            await refreshLowPowerStatus(clearStale: false)
+        case .requiresApproval:
+            helperState = .requiresApproval
+            helperNote = String(localized: "Pomocný proces je znovu zaregistrovaný, ještě ho povolte.")
+        case .notRegistered, .notFound:
+            helperNote = nil
+            apply(registration: registration, keepsUnavailable: false)
+            lastMessage = String(localized: "Pomocný proces se nepodařilo znovu zaregistrovat.")
+        }
+    }
+
     func openLoginItemsSettings() {
         HelperClient.openSystemSettingsLoginItems()
     }
 
+    /// Znovu zjistí stav registrace. Když mezitím přišlo povolení a některý přepínač na něj čeká,
+    /// rovnou ho zapne.
     func refreshHelperState() async {
-        apply(registration: await client.registrationStatus())
+        let registration = await client.registrationStatus()
+        apply(registration: registration)
+        guard registration == .enabled else { return }
+        await recheckUnavailable()
+        resumePending()
+    }
+
+    /// Daemon je povolený, ale naposledy s ním nešlo mluvit: zkusí to znovu, aby jednorázová chyba
+    /// (vypršení času, spojení) nezůstala v kartě napořád. Jiná verze protokolu selže znovu a zůstane.
+    private func recheckUnavailable() async {
+        guard usesHelper, !isShutDown, !draining, !reregistering, case .unavailable = helperState else { return }
+        do {
+            try await verifyHelperVersion()
+        } catch {
+            if !isShutDown, !draining, !reregistering, case .unavailable = helperState {
+                helperState = .unavailable(error.localizedDescription)
+            }
+            return
+        }
+        if !isShutDown, !draining, !reregistering, case .unavailable = helperState { helperState = .ready }
     }
 
     /// Znovu načte baterii a tepelný stav (např. při otevření panelu). Jinak se hodnoty
@@ -303,8 +463,8 @@ final class SleepController {
             if let next = pendingOperation {
                 pendingOperation = nil
                 switch next {
-                case .turnOn(let activation):
-                    await performTurnOn(activation)
+                case .turnOn(let activation, let waitUntil):
+                    await performTurnOn(activation, waitUntil: waitUntil)
                 case .turnOff(let explanation, let notify):
                     await performTurnOff(explanation: explanation, notify: notify)
                 case .stopAll(let notice):
@@ -315,8 +475,8 @@ final class SleepController {
             } else if let next = pendingLowPower {
                 pendingLowPower = nil
                 switch next {
-                case .turnOn:
-                    await performLowPowerOn()
+                case .turnOn(let waitUntil):
+                    await performLowPowerOn(waitUntil: waitUntil)
                 case .turnOff(let explanation):
                     await performLowPowerOff(explanation: explanation)
                 }
@@ -330,7 +490,14 @@ final class SleepController {
 
     /// Kroky společné režimu B i úspornému režimu: registrace daemonu a kontrola verze protokolu.
     /// Když je potřeba schválení v Nastavení systému, jen nastaví `helperState` (návod ukáže karta).
-    private func ensureHelperReady(unavailableMessage: String) async -> Bool {
+    /// `retriesConnection`: zapnutí čeká na povolení a daemon mohl být povolen teprve teď; když
+    /// ještě neodpovídá, chyba se neukáže a nastaví se `daemonNotAnsweringYet`.
+    private func ensureHelperReady(unavailableMessage: String, retriesConnection: Bool = false) async -> Bool {
+        daemonNotAnsweringYet = false
+        guard usesHelper else {
+            lastMessage = Self.diagnosticMessage
+            return false
+        }
         // 1. Registrace daemonu. `.notFound` hlásí systém i u dosud neregistrované služby.
         var registration = await client.registrationStatus()
         if registration == .notRegistered || registration == .notFound {
@@ -342,7 +509,8 @@ final class SleepController {
                 return false
             }
         }
-        apply(registration: registration)
+        // „Povoleno" se do panelu propíše až po ověření verze, aby karta mezitím neproblikla.
+        if registration != .enabled { apply(registration: registration) }
         switch registration {
         case .enabled:
             break
@@ -353,20 +521,152 @@ final class SleepController {
             return false
         }
 
-        // 2. Verze protokolu (čerstvě registrovaný daemon může potřebovat chvilku).
+        // 2. Verze protokolu.
         do {
-            do {
-                _ = try await client.checkedStatus()
-            } catch HelperClientError.connection {
-                try? await Task.sleep(for: .milliseconds(700))
-                _ = try await client.checkedStatus()
-            }
+            try await verifyHelperVersion()
         } catch {
+            if retriesConnection, Self.isConnectionFailure(error) {
+                daemonNotAnsweringYet = true
+                return false
+            }
             helperState = .unavailable(error.localizedDescription)   // text ukáže karta přepínače B
             return false
         }
-        helperState = .ready
+        if helperState != .ready { helperState = .ready }
         return true
+    }
+
+    /// Chyba, po které má smysl zkusit to za chvíli znovu (na rozdíl od jiné verze protokolu).
+    private static func isConnectionFailure(_ error: any Error) -> Bool {
+        switch error {
+        case HelperClientError.connection, HelperClientError.timeout: true
+        default: false
+        }
+    }
+
+    /// Smí čekající zapnutí (se lhůtou `waitUntil`) zkusit neodpovídající daemon znovu?
+    private func canRetryConnection(pending: Date?, waitUntil: Date?) -> Bool {
+        guard let waitUntil, pending == waitUntil else { return false }
+        return connectionRetries < Self.maxConnectionRetries
+    }
+
+    /// Ověří, že daemon odpovídá a mluví stejnou verzí protokolu. Čerstvě registrovaný daemon
+    /// může potřebovat chvilku, proto se chyba spojení jednou zopakuje.
+    private func verifyHelperVersion() async throws {
+        do {
+            _ = try await client.checkedStatus()
+        } catch HelperClientError.connection {
+            try? await Task.sleep(for: .milliseconds(700))
+            _ = try await client.checkedStatus()
+        }
+    }
+
+    // MARK: - Čekání na povolení pomocného procesu
+
+    /// Po neúspěšném `ensureHelperReady`: když chybí jen povolení (nebo čerstvě povolený daemon
+    /// ještě neodpovídá) a zapnutí si vyžádal uživatel, záměr se zapamatuje do `deadline`; jinak
+    /// se případné čekání zruší.
+    private func rememberPending(_ mode: HelperMode, until deadline: Date?) {
+        let notAnswering = daemonNotAnsweringYet
+        daemonNotAnsweringYet = false
+        guard usesHelper, !isShutDown, helperState == .requiresApproval || notAnswering,
+              let deadline, deadline > Date() else {
+            cancelPending(mode)
+            return
+        }
+        if notAnswering { connectionRetries += 1 }
+        switch mode {
+        case .neverSleep: if neverSleepPendingUntil != deadline { neverSleepPendingUntil = deadline }
+        case .lowPower: if lowPowerPendingUntil != deadline { lowPowerPendingUntil = deadline }
+        }
+        syncApprovalWatch()
+    }
+
+    private func cancelPending(_ mode: HelperMode) {
+        switch mode {
+        case .neverSleep: if neverSleepPendingUntil != nil { neverSleepPendingUntil = nil }
+        case .lowPower: if lowPowerPendingUntil != nil { lowPowerPendingUntil = nil }
+        }
+        syncApprovalWatch()
+    }
+
+    /// Stav registrace se zjišťuje po `approvalPollInterval`, jen dokud nějaký přepínač čeká
+    /// (nejdéle `approvalWait`); jinak úloha neexistuje.
+    private func syncApprovalWatch() {
+        let needed = (neverSleepPendingUntil != nil || lowPowerPendingUntil != nil) && !isShutDown
+        guard needed else {
+            approvalTask?.cancel()
+            approvalTask = nil
+            connectionRetries = 0
+            return
+        }
+        guard approvalTask == nil else { return }
+        approvalTask = Task { [weak self, client] in
+            while !Task.isCancelled {
+                do { try await Task.sleep(for: Self.approvalPollInterval) } catch { return }
+                let registration = await client.registrationStatus()
+                guard !Task.isCancelled, let self else { return }
+                self.approvalTick(registration)
+            }
+        }
+    }
+
+    private func approvalTick(_ registration: HelperRegistration) {
+        guard !isShutDown else { return }
+        dropExpiredPendings()
+        apply(registration: registration)
+        if registration == .enabled {
+            resumePending()
+        } else {
+            syncApprovalWatch()
+        }
+    }
+
+    /// Čekání, kterému vypršela lhůta, se zruší. Volá se na každé cestě, která by mohla čekající
+    /// přepínač zapnout, takže lhůta platí i mimo pravidelnou kontrolu.
+    private func dropExpiredPendings() {
+        let now = Date()
+        var expired = false
+        if let until = neverSleepPendingUntil, until <= now {
+            neverSleepPendingUntil = nil
+            expired = true
+        }
+        if let until = lowPowerPendingUntil, until <= now {
+            lowPowerPendingUntil = nil
+            expired = true
+        }
+        if expired {
+            lastMessage = String(localized: "Pomocný proces nebyl do 10 minut povolen, přepínač proto zůstal vypnutý. Po povolení ho zapněte znovu.")
+        }
+    }
+
+    /// Povolení přišlo: zapne přepínače, které na něj čekaly. Čekání ruší až samotné zapnutí
+    /// (nebo jeho neúspěch), takže přepínač mezitím v panelu neproblikne. Běží nejvýš jedno
+    /// takové zapnutí; když už nic nečeká, kontrola povolení se zastaví.
+    private func resumePending() {
+        guard !isShutDown, !resuming else { return }
+        dropExpiredPendings()
+        let neverSleep = neverSleepPendingUntil
+        let lowPower = lowPowerPendingUntil
+        guard neverSleep != nil || lowPower != nil else {
+            syncApprovalWatch()
+            return
+        }
+        approvalTask?.cancel()
+        approvalTask = nil
+        resuming = true
+        Task { [weak self] in
+            guard let self else { return }
+            if let neverSleep, self.neverSleepPendingUntil == neverSleep {
+                await self.submit(.turnOn(.fresh, waitUntil: neverSleep))
+            }
+            if let lowPower, self.lowPowerPendingUntil == lowPower {
+                await self.submitLowPower(.turnOn(waitUntil: lowPower))
+            }
+            self.resuming = false
+            // Kdo ještě čeká (povolení mezitím zmizelo, daemon ještě neodpovídá), hlídá se dál.
+            self.syncApprovalWatch()
+        }
     }
 
     /// Vlastní zrušení spojení vrátí v daemonu oba režimy. Ten, o který právě nejde (`sparing`),
@@ -381,14 +681,22 @@ final class SleepController {
         }
     }
 
-    private func performTurnOn(_ activation: Activation) async {
-        guard !neverSleepOn else { return }
+    private func performTurnOn(_ activation: Activation, waitUntil: Date?) async {
+        guard !neverSleepOn else {
+            cancelPending(.neverSleep)
+            return
+        }
         clearMessages()
 
         // 1. a 2. Registrace daemonu a verze protokolu.
         guard await ensureHelperReady(
-            unavailableMessage: String(localized: "Pomocný proces není k dispozici, režim Nikdy nevypínat nejde zapnout.")
-        ) else { return }
+            unavailableMessage: String(localized: "Pomocný proces není k dispozici, režim Nikdy nevypínat nejde zapnout."),
+            retriesConnection: canRetryConnection(pending: neverSleepPendingUntil, waitUntil: waitUntil)
+        ) else {
+            rememberPending(.neverSleep, until: waitUntil)
+            return
+        }
+        cancelPending(.neverSleep)
 
         // 3. Pojistky: nezapínat, když by se režim hned zase vypnul.
         await refreshPower()
@@ -426,6 +734,7 @@ final class SleepController {
     /// Vrací text chyby, když se vypnutí nepodařilo potvrdit.
     @discardableResult
     private func performTurnOff(explanation: String?, notify: Bool) async -> String? {
+        cancelPending(.neverSleep)
         guard neverSleepOn else { return nil }
         neverSleepOn = false
         stopNeverSleepLoops()
@@ -469,13 +778,21 @@ final class SleepController {
 
     // MARK: - Úsporný režim (operace)
 
-    private func performLowPowerOn() async {
-        guard !lowPowerOn else { return }
+    private func performLowPowerOn(waitUntil: Date?) async {
+        guard !lowPowerOn else {
+            cancelPending(.lowPower)
+            return
+        }
         clearMessages()
 
         guard await ensureHelperReady(
-            unavailableMessage: String(localized: "Pomocný proces není k dispozici, úsporný režim nejde zapnout.")
-        ) else { return }
+            unavailableMessage: String(localized: "Pomocný proces není k dispozici, úsporný režim nejde zapnout."),
+            retriesConnection: canRetryConnection(pending: lowPowerPendingUntil, waitUntil: waitUntil)
+        ) else {
+            rememberPending(.lowPower, until: waitUntil)
+            return
+        }
+        cancelPending(.lowPower)
         guard !isShutDown else { return }
 
         do {
@@ -501,6 +818,7 @@ final class SleepController {
     }
 
     private func performLowPowerOff(explanation: String?) async {
+        cancelPending(.lowPower)
         guard lowPowerOn else { return }
         lowPowerExternalCheck?.cancel()
         lowPowerExternalCheck = nil
@@ -535,7 +853,7 @@ final class SleepController {
     /// zůstalo. Jen když je daemon už povolený: kvůli dotazu se nikdy neregistruje. Rozhoduje se
     /// podle `heldByHelper`, ne podle systémové hodnoty – tu může mít zapnutou uživatel.
     func refreshLowPowerStatus(clearStale: Bool) async {
-        guard !isShutDown, helperState == .ready else { return }
+        guard usesHelper, !isShutDown, helperState == .ready else { return }
         guard (try? await client.checkedStatus()) != nil else { return }
         guard let status = try? await client.lowPowerStatus() else { return }
         if lowPowerSupported != status.supported { lowPowerSupported = status.supported }
@@ -816,8 +1134,9 @@ final class SleepController {
         // které přijde během čekání na daemon.
         let activation = Activation.restored(remembered.expiresAt)
         if remembered.keepAwake { setKeepAwake(true, activation: activation) }
-        if remembered.neverSleep, !isShutDown { await submit(.turnOn(activation)) }
-        if remembered.lowPower, !isShutDown, !lowPowerOn { await submitLowPower(.turnOn) }
+        // Obnova na povolení pomocného procesu nečeká; to dělá jen zapnutí od uživatele.
+        if remembered.neverSleep, !isShutDown { await submit(.turnOn(activation, waitUntil: nil)) }
+        if remembered.lowPower, !isShutDown, !lowPowerOn { await submitLowPower(.turnOn(waitUntil: nil)) }
     }
 
     /// Když daemon hlásí, že po něm zůstalo nevrácené nastavení, a režim B nemá být zapnutý,
@@ -825,7 +1144,7 @@ final class SleepController {
     /// sám při startu. Podle systémové hodnoty SleepDisabled se nerozhoduje: může ji mít
     /// nastavenou někdo jiný a ta se měnit nesmí.
     private func clearStaleNoSleep() async {
-        guard !isShutDown, !neverSleepOn, !draining, helperState == .ready else { return }
+        guard usesHelper, !isShutDown, !neverSleepOn, !draining, helperState == .ready else { return }
         guard let status = try? await client.getStatus() else { return }
         guard !isShutDown, !neverSleepOn, !draining, status.heldByHelper else { return }
         do {
@@ -852,6 +1171,7 @@ final class SleepController {
     private func clearMessages() {
         lastMessage = nil
         lastNotice = nil
+        helperNote = nil
     }
 
     private func remember() {
@@ -859,17 +1179,29 @@ final class SleepController {
                                   lowPower: lowPowerOn, expiresAt: expiresAt)
     }
 
-    private func apply(registration: HelperRegistration) {
+    /// Převede stav registrace na stav pro panel. `.notFound` hlásí systém i u služby, která jen
+    /// ještě není zaregistrovaná (čerstvá instalace); bere se proto jako „neregistrováno" a karta
+    /// nabídne běžné povolení. Výjimkou je balíček, ve kterém popis služby opravdu chybí.
+    /// `keepsUnavailable`: pouhé zjištění „povoleno" nepřepíše chybu, kterou ohlásil sám daemon
+    /// (jiná verze, spojení); tu smaže až úspěšné ověření nebo nová registrace.
+    private func apply(registration: HelperRegistration, keepsUnavailable: Bool = true) {
+        let state: HelperState
         switch registration {
         case .notRegistered:
-            helperState = .notRegistered
+            state = .notRegistered
         case .requiresApproval:
-            helperState = .requiresApproval
+            state = .requiresApproval
         case .enabled:
-            helperState = .ready
+            if keepsUnavailable, case .unavailable = helperState { return }
+            state = .ready
         case .notFound:
-            helperState = .unavailable(String(localized: "Pomocný proces nebyl v aplikaci nalezen."))
+            state = Self.daemonPlistInBundle ? .notRegistered : .missingFromBundle
         }
+        if helperState != state { helperState = state }
+    }
+
+    private static var diagnosticMessage: String {
+        String(localized: "Zkušební spuštění pomocný proces nepoužívá, přepínač proto nejde zapnout.")
     }
 
     private func beginBusy() {
